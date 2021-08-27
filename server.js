@@ -8,7 +8,7 @@ let cdLogs   = false // Connected / Disconnected logs
 const http = require('http')
 const fs = require('fs').promises
 const ws = require('ws')
-const game = require('./serverGame')
+let game = require('./cartSelect')
 
 let last = "-1"
 let connected = {}
