@@ -1,17 +1,26 @@
 
 :root {
+    
+
     --dark: #111;
+    --mid: #333;
     --light: #eee;
 
+    --pb: #111;
     --p0: rgba(0,0,0,0);
-    --p1: #f00;
-    --p2: #0f0;
-    --p3: #00f;
+    --p1: #dd4545;
+    --p2: #f7d85a;
+    --p3: #a5e4ae;
+    --p4: #30c5a1;
+    --p5: #06768e;
+    --p6: #22287c;
+    --p7: #f0949f;
 }
 
 /* @media (prefers-color-scheme: dark) {
     :root {
         --dark: #eee;
+        --mid: #ccc;
         --light: #111;
     }
 } */
@@ -19,11 +28,10 @@
 * {
     padding: 0;
     margin: 0;
-    overflow: hidden;
 }
 
 body {
-    width: calc(101vw);
+    width: 100vw;
     height: 100vh;
     position: relative;
     background-color: var(--light);
@@ -33,10 +41,9 @@ body {
     width: min(100vw, 100vh);
     height: min(100vw, 100vh);
     position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-
-    background-color: var(--dark);
+    left: 50vw;
+    transform: translate(-50%, 0);
+    background-color: var(--pb);
 }
 
 #squareButton {
@@ -46,6 +53,37 @@ body {
 
 #settingsContainer {
     background-color: var(--dark);
-    width: 100px;
-    height: 100px;
+    width: min(800px, calc(100vw - 100px));
+    height: min(500px, calc(100vh - 80px));
+    position: absolute;
+    display: grid;
+
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 50% 50%;
+
+    left: 50vw; top: 50vh;
+    transform: translate(-50%, -50%);
+}
+
+.settingsDialogue {
+    background-color: var(--mid);
+    color: var(--light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+h2 {
+    color: var(--light);
+}
+
+.switchBox {
+    transition: background-color .1s;
+    top: 0;
+    left: 0;
+    width: calc(min(800px, calc(100vw - 100px)) / 2);
+    height: calc(min(500px, calc(100vh - 80px)) / 2);
+    /* margin-bottom: calc(min(500px, calc(100vh - 80px)) / 2); */
+    background-color: var(--p1);
 }
