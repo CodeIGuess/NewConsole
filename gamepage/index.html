@@ -6,19 +6,27 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name = "viewport" content = "width=device-width, minimum-scale=1.0, maximum-scale = 1.0, user-scalable = no">
+        <link rel="apple-touch-icon" href="icon.png">
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
         <div id="settingsContainer">
             <!-- <div id="squareButton" onpointerdown="this.innerText='DN'" onpointerup="this.innerText='UP'">Display</div> -->
             <div class="settingsDialogue">
-                <h2>Choose the features you want, then press 'Ready' when you're ready to start</h2>
+                <h2>Press `Start` to...<br> you know</h2>
             </div>
-            <div class="switchBox">Ready</div>
-            <div class="switchBox">Display</div>
-            <div class="switchBox">Controller</div>
+            <div class="switchBox" onpointerdown="readyStart()"><h2>Start</h2></div>
+            <div class="switchBox" onpointerdown="dpSwitches(2)"><h2>Display</h2></div>
+            <div class="switchBox" onpointerdown="dpSwitches(3)"><h2>Control</h2></div>
         </div>
-        <!-- <svg id="fullScreen" width="512" height="512" viewBox="0 0 512 512"></svg> -->
-        <!-- <script src="main.js"></script> -->
+        <svg id="fullScreen" width="512" height="512" viewBox="0 0 512 512"></svg>
+        <div id="fullController">
+            <div id="leftC" onpointerdown="buttonPressed(0)" onpointerup="buttonReleased(0)"></div>
+            <div id="rightC" onpointerdown="buttonPressed(1)" onpointerup="buttonReleased(1)"></div>
+        </div>
+        <!-- <script type="module" src="screen.js"></script> -->
+        <script src="page.js" async></script>
     </body>
 </html>
