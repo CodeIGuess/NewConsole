@@ -80,7 +80,7 @@ setInterval(function(){
             disconnect(k)
             continue
         }
-        ret += ", " + k + ": " + connected[k][0] + " " + connected[k][1]
+        ret += ", " + k + ": " + connected[k][3] + " " + connected[k][3]
     }
     console.log(ret)
 }, 1000)
