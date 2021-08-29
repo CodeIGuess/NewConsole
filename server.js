@@ -73,12 +73,16 @@ function getIPAddress() {
 }
 
 setInterval(function(){
+    let ret = ""
     for (let k in connected) {
         connected[k][0] += 1
         if (connected[k][0] > 6) {
             disconnect(k)
+            continue
         }
+        ret += ", " + k + ": " + connected[k][0] + " " + connected[k][1]
     }
+    console.log(ret)
 }, 1000)
 
 const wss = new ws.WebSocketServer({port: 5077})
@@ -87,14 +91,21 @@ wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
         message = message.toString().split(":")
         let sip = message[0] // Sender IP
-        let cnt = message.slice(1).join(":")
-        switch (cnt) {
+        let cnt = message.slice(1)
+        console.log(message)
+        switch (cnt[0]) {
             case "":
                 if (!(sip in connected)) connect(sip)
                 else connected[sip][0] = 0
                 break
-            case "DP":
-                connected[sip][1] |= 1
+            case "FT":
+                connected[sip][1] = parseInt(cnt[1])
+                break
+            case "BD":
+                console.log("Button Down!")
+                break
+            case "BU":
+                console.log("Button Up!")
                 break
         }
     })
