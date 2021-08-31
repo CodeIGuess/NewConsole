@@ -1,6 +1,6 @@
 
 // Modifiable things
-let pathLogs = true // Url logs
+let pathLogs = false // Url logs
 let cdLogs   = false // Connected / Disconnected logs
 
 // Code...
@@ -13,10 +13,10 @@ let game = require('./cartSelect')
 let last = "-1"
 let connected = {}
 
-let urlBlackList = ["/favicon.ico"]
+let urlBlackList = [ "/favicon.ico" ]
 
 function connect(ip) {
-    connected[ip] = [0, 0]
+    connected[ip] = [0, 0, 0, 0]
     if (cdLogs) console.log("Connected:", ip)
 }
 
@@ -28,8 +28,6 @@ function disconnect(ip) {
 function requestListener(req, res) {
     if (req.connection.remoteAddress == ip) {} // Code for dev mode
     let url = req.url
-    // if (url == '/') url += "selectScreen.html"
-    // if (url == "/game") url = "/"
     if (url[url.length - 1] == '/') url += "index.html"
     last = req.connection.remoteAddress
     if (!(req.connection.remoteAddress in connected)) connect(req.connection.remoteAddress)
@@ -65,8 +63,8 @@ function getIPAddress() {
         var iface = interfaces[devName]
         for (var i = 0; i < iface.length; i++) {
             var alias = iface[i]
-            if (alias.family === "IPv4" && alias.address !== "127.0.0.1" && !alias.internal)
-                return alias.address
+            if (alias.family === "IPv4" && alias.address !== "127.0.0.1" 
+                && !alias.internal) return alias.address
         }
     }
     return "0.0.0.0"
@@ -80,7 +78,7 @@ setInterval(function(){
             disconnect(k)
             continue
         }
-        ret += ", " + k + ": " + connected[k][3] + " " + connected[k][3]
+        ret += ", " + k + ": " + connected[k][3]
     }
     console.log(ret)
 }, 1000)
@@ -92,7 +90,7 @@ wss.on('connection', function connection(ws) {
         message = message.toString().split(":")
         let sip = message[0] // Sender IP
         let cnt = message.slice(1)
-        console.log(message)
+        // console.log(message)
         switch (cnt[0]) {
             case "":
                 if (!(sip in connected)) connect(sip)
@@ -102,10 +100,10 @@ wss.on('connection', function connection(ws) {
                 connected[sip][1] = parseInt(cnt[1])
                 break
             case "BD":
-                console.log("Button Down!")
+                connected[sip][3] |= 1 << cnt[1]
                 break
             case "BU":
-                console.log("Button Up!")
+                connected[sip][3] &= ~(1 << cnt[1])
                 break
         }
     })
@@ -160,6 +158,8 @@ function cleanupAttributes(el, c) {
             cleanString += ',' + a + ':' + els[el].attributes[a]
         }
     }
+    // console.log(connected[c])
+    console.log(cleanString)
     connected[c][2].send(cleanString)
 }
 
