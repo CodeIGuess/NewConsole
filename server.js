@@ -103,6 +103,7 @@ wss.on('connection', function connection(ws) {
                 connected[sip][3] |= 1 << cnt[1]
                 break
             case "BU":
+                console.log("Up!")
                 connected[sip][3] &= ~(1 << cnt[1])
                 break
         }
@@ -136,7 +137,7 @@ let els = [{
 let frameCount = 0
 setInterval(function update(){
     for (let c in connected) {
-        if (connected[c].length < 3) continue
+        if (connected[c][2] === 0) continue
         if (connected[c][1] & 1) { // Check if client has display
             //connected[c][2].send(`GR:<rect x="224" y="224" fill="red" width="64" height="64"/>`)
             // connected[c][2].send(`GR:`)
@@ -159,7 +160,6 @@ function cleanupAttributes(el, c) {
         }
     }
     // console.log(connected[c])
-    console.log(cleanString)
     connected[c][2].send(cleanString)
 }
 
