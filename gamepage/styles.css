@@ -9,12 +9,11 @@ body, html {
     --mid: #ccc;
     --dark: #111;
 
-    --pb: #111;
-    --p0: rgba(0,0,0,0);
-    --p1: #dd4545;
-    --p2: #f7d85a;
-    --p3: #a5e4ae;
-    --p4: #30c5a1;
+    --p0: #111;
+    --p1: rgba(0,0,0,0);
+    --p2: #dd4545;
+    --p3: #f7d85a;
+    --p4: #a5e4ae;
     --p5: #06768e;
     --p6: #22287c;
     --p7: #f0949f;
@@ -66,7 +65,7 @@ body {
     position: absolute;
     left: 50vw;
     transform: translate(-50%, 0);
-    background-color: var(--pb);
+    background-color: var(--p0);
     pointer-events: none;
     opacity: 0;
     transition: opacity .5s;
@@ -110,7 +109,7 @@ body {
 }
 
 #settingsContainer {
-    background-color: var(--p1);
+    background-color: var(--p2);
     width: min(800px, calc(100vw - 100px));
     height: min(500px, calc(100vh - 80px));
     position: absolute;
@@ -155,12 +154,12 @@ h2 {
 }
 
 .switchBox:hover h2, .settingsDialogue:hover h2 {
-    text-shadow: 0px 3px var(--p2);
+    text-shadow: 0px 3px var(--p3);
     transform: translateY(-1.5px) scale(1.02) rotate(.5deg);
 }
 
 .switchBox:active h2 {
-    text-shadow: 0px 5px var(--p2);
+    text-shadow: 0px 5px var(--p3);
     transform: translateY(-4px) scale(1.04) rotate(.7deg);
 }
 
@@ -175,7 +174,7 @@ h2 {
     width: calc(min(800px, calc(100vw - 100px)) / 2);
     height: calc(min(500px, calc(100vh - 80px)) / 2);
     /* margin-bottom: calc(min(500px, calc(100vh - 80px)) / 2); */
-    background-color: var(--p1);
+    background-color: var(--p2);
     display: flex;
     justify-content: center;
     align-items: center;
