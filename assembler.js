@@ -1,9 +1,6 @@
 
 // Copy to clipboard
-function copy(data) {
-    var proc = require('child_process').spawn('pbcopy'); 
-    proc.stdin.write(data); proc.stdin.end();
-}
+const clipboardy = require('clipboardy')
 
 // parseFloat with hex functionality
 function parseFloat(str, radix) {
@@ -70,6 +67,9 @@ code = code.map(e => {
 
 // FPO, eventually this should output a binary file, but for now this works.
 code = code.map(e => {
-    
-})
-
+    let r = e.toString(16).toUpperCase()
+    if (r.length % 2 == 1) r = "0" + r
+    return (r.length % 2 == 1 ? "0x0" : "0x") + r
+}).join(", ")
+clipboardy.writeSync(code)
+console.log(code)
