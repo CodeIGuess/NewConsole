@@ -46,27 +46,21 @@ let ins = {
     0x13: "",
 
     //*SMA - Sets the active address to the value at the memory address of the active address (basically a pointer)
-    0x14: "",
+    0x14: function(){ aa = memory[aa] },
     //*OUT - Outputs the active address for debugging
     0x15: function(){ console.log(memory[aa]); ip++ },
     // WNF - Waits for the next frame
     0x16: ""
 }
 
-let memory = [
-    0x01, 0xFE, // act 0xFE
-    0x02, 0x02, // set 0x01
-    0x01, 0xFF, // act 0xFF
-    0x02, 0x01, // set 0x00
+let memory = [0x01, 0xFE, 0x02, 0x01, 0x01, 0xFF, 0x02, 0x00, 0x01, 0xFF, 0x15, 0x04, 0xFE, 0x01, 0xFD, 0x02, 0x08, 0x10]
 
-    0x01, 0xFF, // act 0xFF
-    0x15,       // out
-    0x06, 0xFE, // add 0xFE
-
-    0x01, 0xFD, // act 0xFD
-    0x02, 0x08, // set 0x08
-    0x10        // jmp
-]
+memory[0xFF + 0] = "h".charCodeAt(0)
+memory[0xFF + 1] = "e".charCodeAt(0)
+memory[0xFF + 2] = "l".charCodeAt(0)
+memory[0xFF + 3] = "l".charCodeAt(0)
+memory[0xFF + 4] = "o".charCodeAt(0)
+memory[0xFF + 5] = "!".charCodeAt(0)
 
 let ip = 0, // Instruction pointer
     aa = 0  // Active address
