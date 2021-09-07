@@ -43,8 +43,8 @@ let instructionMapping = {
 
 let source = `
 @any 0x00
-@check 0xAB
-@string "hey there, \\"mate\\" :)"
+@check 0x00
+@string "Hello, World!"
 @pointer 0x00
 @one 0x01
 
@@ -70,60 +70,63 @@ let source = `
     hlt
 `
 
-// Tokenize everything and remove unwanted things
-source = source.split(/[ \n]+/g).filter(e => e.length != 0)
-for (let a = 0; a < source.length; a++) {
-    if (source[a][0] == '"') {
-        while (source[a][source[a].length - 1] != '"' || (source[a][source[a].length - 1] == '"' && source[a].length > 1 && source[a][source[a].length - 2] == '\\')) {
-            source[a] += " " + source.splice(a + 1, 1)
+function assemble0() {
+    // Tokenize everything and remove unwanted things
+    source = source.split(/[ \n]+/g).filter(e => e.length != 0)
+    for (let a = 0; a < source.length; a++) {
+        if (source[a][0] == '"') {
+            while (source[a][source[a].length - 1] != '"' || (source[a][source[a].length - 1] == '"' && source[a].length > 1 && source[a][source[a].length - 2] == '\\')) {
+                source[a] += " " + source.splice(a + 1, 1)
+            }
+            source[a] = source[a]
         }
-        source[a] = source[a]
     }
-}
 
-// 
-let code = []
-let labs = {}
-let vars = {}
-for (let a = 0; a < source.length; a++) {
-    if (source[a][0] == ':') {
-        labs[source[a].slice(1)] = code.length
-    } else if (source[a][0] == '@') {
-        vars[source[a].slice(1)] = [source[++a], -1]
-    } else {
-        code.push(source[a])
-    }
-}
-let vidx = code.length
-for (let a in vars) {
-    vars[a][1] = vidx
-    if (vars[a][0][0] == '"') {
-        let s = vars[a][0].slice(1,-1)
-        for (let b = 0; b < s.length; b++) {
-            code[vidx++] = s.charCodeAt(b) + ""
+    // 
+    let code = []
+    let labs = {}
+    let vars = {}
+    for (let a = 0; a < source.length; a++) {
+        if (source[a][0] == ':') {
+            labs[source[a].slice(1)] = code.length
+        } else if (source[a][0] == '@') {
+            vars[source[a].slice(1)] = [source[++a], -1]
+        } else {
+            code.push(source[a])
         }
-        code[vidx++] = "0"
-    } else {
-        code[vidx++] = vars[a][0]
     }
+    let vidx = code.length
+    for (let a in vars) {
+        vars[a][1] = vidx
+        if (vars[a][0][0] == '"') {
+            let s = vars[a][0].slice(1,-1)
+            for (let b = 0; b < s.length; b++) {
+                code[vidx++] = s.charCodeAt(b) + ""
+            }
+            code[vidx++] = "0"
+        } else {
+            code[vidx++] = vars[a][0]
+        }
+    }
+
+    // Converts instruction/number strings into numerals
+    code = code.map(e => {
+        if (e in instructionMapping)
+            return instructionMapping[e]
+        if (e[0] == '.')
+            return labs[e.slice(1)]
+        if (e[0] == '$')
+            return vars[e.slice(1)][1]
+            // return 0xDD
+        return parseNum(e)
+    })
+
+    // Returns the code as a
+    return code
 }
 
-// Converts instruction/number strings into numerals
-code = code.map(e => {
-    if (e in instructionMapping)
-        return instructionMapping[e]
-    if (e[0] == '.')
-        return labs[e.slice(1)]
-    if (e[0] == '$')
-        return vars[e.slice(1)][1]
-        // return 0xDD
-    return parseNum(e)
-})
-
-// FPO, eventually this should output a binary file, but for now this works.
-code = code.map(e => {
+console.log(assemble0().map(e => {
     let r = e.toString(16).toUpperCase()
     if (r.length % 2 == 1) r = "0" + r
     return (r.length % 2 == 1 ? "0x0" : "0x") + r
-}).join(", ")
-console.log(code)
+}).join(", "))
