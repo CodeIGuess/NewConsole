@@ -7,38 +7,13 @@ function parseFloat(str, radix) {
     return parseInt(parts[0], radix)
 }
 
+// Parses a number (checking if it's hex or decimal)
 function parseNum(num) {
     if (num.indexOf('x') == -1)
         return parseFloat(num, 10)
     if (num.indexOf('x') != -1 && num[0] == '0' && num[1] == 'x')
         return parseFloat(num.slice(2), 16)
     return num
-}
-
-let instructionMapping = {
-    "hlt": 0x00,
-    "act": 0x01,
-    "set": 0x02,
-    "mov": 0x03,
-    "add": 0x04,
-    "sub": 0x05,
-    "mul": 0x06,
-    "div": 0x07,
-    "and": 0x08,
-    "orr": 0x09,
-    "not": 0x0A,
-    "xor": 0x0B,
-    "sin": 0x0C,
-    "cos": 0x0D,
-    "psh": 0x0E,
-    "pop": 0x0F,
-    "jmp": 0x10, 
-    "jeq": 0x11,
-    "jne": 0x12,
-
-    "sma": 0x14,
-    "out": 0x15,
-    "wnf": 0x16
 }
 
 let source = `
@@ -82,7 +57,7 @@ function assemble0() {
         }
     }
 
-    // 
+    // Parses labels and variables
     let code = []
     let labs = {}
     let vars = {}
@@ -110,18 +85,32 @@ function assemble0() {
     }
 
     // Converts instruction/number strings into numerals
+    let instructionMapping = {
+        "hlt": 0x00, "act": 0x01,
+        "set": 0x02, "mov": 0x03,
+        "add": 0x04, "sub": 0x05,
+        "mul": 0x06, "div": 0x07,
+        "and": 0x08, "orr": 0x09,
+        "not": 0x0A, "xor": 0x0B,
+        "sin": 0x0C, "cos": 0x0D,
+        "psh": 0x0E, "pop": 0x0F,
+        "jmp": 0x10,  "jeq": 0x11,
+        "jne": 0x12,
+        "sma": 0x14, "out": 0x15,
+        "wnf": 0x16
+    }
     code = code.map(e => {
         if (e in instructionMapping)
             return instructionMapping[e]
-        if (e[0] == '.')
+        if (e[0] == '.') // Parses references to labels
             return labs[e.slice(1)]
-        if (e[0] == '$')
+        if (e[0] == '$') // Parses references to variables
             return vars[e.slice(1)][1]
             // return 0xDD
         return parseNum(e)
     })
 
-    // Returns the code as a
+    // Returns the code as a list of numbers
     return code
 }
 
