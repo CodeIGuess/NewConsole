@@ -47,32 +47,35 @@ let source = `
     hlt
 `
 
-function assemble0() {
+function assemble0(prg) {
     // Tokenize everything and remove unwanted things
-    source = source.split(/[ \n]+/g).filter(e => e.length != 0)
-    for (let a = 0; a < source.length; a++) {
-        if (source[a][0] == '"') {
-            while (source[a][source[a].length - 1] != '"' || (source[a][source[a].length - 1] == '"' && source[a].length > 1 && source[a][source[a].length - 2] == '\\')) {
-                source[a] += " " + source.splice(a + 1, 1)
+    prg = prg.split(/[ \n]+/g).filter(e => e.length != 0)
+    for (let a = 0; a < prg.length; a++) {
+        if (prg[a][0] == '"') {
+            while (prg[a][prg[a].length - 1] != '"' || (prg[a][prg[a].length - 1] == '"' && prg[a].length > 1 && prg[a][prg[a].length - 2] == '\\')) {
+                prg[a] += " " + prg.splice(a + 1, 1)
             }
-            source[a] = source[a]
+            prg[a] = prg[a]
         }
     }
 
     // Parses labels and variables
-    let code = []
-    let labs = {}
-    let vars = {}
-    for (let a = 0; a < source.length; a++) {
-        if (source[a][0] == ':') {
-            labs[source[a].slice(1)] = code.length
-        } else if (source[a][0] == '@') {
-            vars[source[a].slice(1)] = [source[++a], -1]
+    let code = [] // Mid-level code
+    let labs = {} // Labels
+    let vars = {} // Variables
+    for (let a = 0; a < prg.length; a++) {
+        if (prg[a][0] == ':') {
+            labs[prg[a].slice(1)] = code.length
+        } else if (prg[a][0] == '@') {
+            vars[prg[a].slice(1)] = [prg[++a], -1]
         } else {
-            code.push(source[a])
+            code.push(prg[a])
         }
     }
-    let vidx = code.length
+    code.push('0') // Pushes "HLT" to the end of the program. UNTESTED!
+
+    // Puts variables at the end of the program.
+    let vidx = code.length // Variable index
     for (let a in vars) {
         vars[a][1] = vidx
         if (vars[a][0][0] == '"') {
@@ -108,7 +111,6 @@ function assemble0() {
             return labs[e.slice(1)]
         if (e[0] == '$') // Parses references to variables
             return vars[e.slice(1)][1]
-            // return 0xDD
         return parseNum(e)
     })
 
@@ -116,7 +118,7 @@ function assemble0() {
     return code
 }
 
-console.log(assemble0().map(e => {
+console.log(assemble0(source).map(e => {
     let r = e.toString(16).toUpperCase()
     if (r.length % 2 == 1) r = "0" + r
     return (r.length % 2 == 1 ? "0x0" : "0x") + r
