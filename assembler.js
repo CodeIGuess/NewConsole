@@ -7,10 +7,12 @@ function parseFloat(str, radix) {
     return parseInt(parts[0], radix)
 }
 
-// Parses a number (checking if it's hex or decimal)
+// Parses a number (checking if it's decimal, binary, or hexadecimal)
 function parseNum(num) {
     if (num.indexOf('x') == -1)
         return parseFloat(num, 10)
+    if (num.indexOf('b') != -1 && num[0] == '0' && num[1] == 'b')
+        return parseFloat(num.slice(2), 2)
     if (num.indexOf('x') != -1 && num[0] == '0' && num[1] == 'x')
         return parseFloat(num.slice(2), 16)
     return num
