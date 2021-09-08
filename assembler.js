@@ -1,4 +1,7 @@
 
+const { execSync } = require("child_process");
+const { readFileSync, writeFileSync } = require('fs')
+
 // parseFloat with hex functionality
 function parseFloat(str, radix) {
     var parts = str.split(".")
@@ -47,11 +50,32 @@ let source = `
     hlt
 `
 
-function assemble1(prg) {
+// Compiles C to ARM
+// Strips all the unecessary things. I have no idea what these mean.
+function compile() {
+    execSync("arm-none-eabi-gcc -Os -S games/game.c -o games/game.s")
+    let data = readFileSync('games/game.s', 'utf8')
+    data = data
+        .split("\n")
+        .filter(e => e.length > 0 && e.trim()[0] != '.' && e.trim()[0] != '@')
+        .map(e => {
+            // This could cause issues if '@' is inside a string.
+            if (e.includes("@")) e = e.split("@")[0]
+            if (e[0] == ' ') return "   " + e
+            return e
+        })
+        .join("\n")
+    // return data.join("\n")
+    writeFileSync("games/game.s", data, "utf-8")
+}
+
+// Converts ARM assembly to Console assembly
+function assembleARM(prg) {
     let code = []
 }
 
-function assemble0(prg) {
+// Converts the lowest-level Console assembly to bytes
+function assembleConsole(prg) {
     // Tokenize everything and remove unwanted things
     prg = prg.split(/[ \n]+/g).filter(e => e.length != 0)
     for (let a = 0; a < prg.length; a++) {
@@ -122,8 +146,10 @@ function assemble0(prg) {
     return code
 }
 
-console.log(assemble0(source).map(e => {
-    let r = e.toString(16).toUpperCase()
-    if (r.length % 2 == 1) r = "0" + r
-    return (r.length % 2 == 1 ? "0x0" : "0x") + r
-}).join(", "))
+// console.log(assemble0(source).map(e => {
+//     let r = e.toString(16).toUpperCase()
+//     if (r.length % 2 == 1) r = "0" + r
+//     return (r.length % 2 == 1 ? "0x0" : "0x") + r
+// }).join(", "))
+
+console.log(compile())
