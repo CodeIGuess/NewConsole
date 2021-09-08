@@ -47,6 +47,10 @@ let source = `
     hlt
 `
 
+function assemble1(prg) {
+    let code = []
+}
+
 function assemble0(prg) {
     // Tokenize everything and remove unwanted things
     prg = prg.split(/[ \n]+/g).filter(e => e.length != 0)
