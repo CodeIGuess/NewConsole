@@ -1,15 +1,20 @@
+#include <stdio.h>
 
-float squareFloat(float num) {
-    if (num > 100) { num *= 0.5f; }
-    if (num < 100) { num *= -0.5f; }
-    return num * num;
-}
+// float squareFloat(float num) {
+//     return num * num;
+// }
 
-int squareInt(int num) {
-    return num * num;
-}
+// int squareInt(int num) {
+//     return num * num;
+// }
 
-int start() {
-    *(int*)0x000000FF = squareInt(10); // setting a memory address. evil.
+int main() {
+    // *(int*)0xCCDDEEFF = 10; // setting a memory address. evil.
+    printf("Hello!");
+    // __asm__(
+    //     "ldr\tr0, .L3\n"
+    //     "\tbl\tprintf\n"
+    // );
+    
     return 0;
 }
