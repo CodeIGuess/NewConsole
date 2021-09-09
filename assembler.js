@@ -1,6 +1,14 @@
 
-const { execSync } = require("child_process");
+let showLogs = true
+
+const { execSync } = require("child_process")
+const { prototype } = require("events")
 const { readFileSync, writeFileSync } = require('fs')
+
+let keepDirectives = [
+    ".ascii",
+    ".word"
+]
 
 // parseFloat with hex functionality
 function parseFloat(str, radix) {
@@ -21,27 +29,92 @@ function parseNum(num) {
     return num
 }
 
-let source = `
-@any 0x00
-@check 0x00
-@string "Hello, World!"
-@pointer 0x00
-@one 0x01
+// Compiles C to ARM
+// Strips all the unecessary things. I have no idea what these mean.
+function compile() {
+    execSync("arm-none-eabi-gcc -S games/game.c -o games/game.s") // -Os
+    let data = readFileSync('games/game.s', 'utf8')
+    let original = data + ''
+    data = data
+        // Remove comments
+        .split("\n")
+        .filter(e => e.length > 0 && e.trim()[0] != '@')
+        .join("\n")
 
-:start
-    act $pointer
-    set $string
-    sub $one
+        // Remove unused tags
+        .split(/\n(?!\t)/g)
+        .filter(e => e[0] != '\t')
+        .filter(e => {
+            let lab = e.split("\n")[0].slice(0, -1)
+            if (lab == "main") return true
+            return (original.match(new RegExp(lab.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length > 1
+        })
+        .map(e => {
+            e = e.split("\n")
+            let lab = e.splice(0, 1)[0].trim()
+            e = e.map(g => g = g.trim().split('\t'))
+            e = e.filter(g => keepDirectives.includes(g[0]) || g[0][0] != '.')
+            return lab + "\n\t" + e.map(g => g.join("\t")).join("\n\t")
+        })
+        // .join("\n@ ------------------------------------------\n")
+        .join("\n\n")
+    writeFileSync("games/game.s", data, "utf-8")
+    return data
+}
+
+// Converts ARM assembly to Console assembly
+function assembleARM(prg) {
+    prg = prg.replace(/\t/g, " ").replace(/\n\n/g, "\n").split(/\n/g)
+    let ins = prg
+        .map(e => e.trim()
+            .split(/(( |)(?=[!@#$%^&*(){}\-={}\[\]\\\|:;<>?,\/])( |)|( |)(?<=[!@#$%^&*(){}\-={}\[\]\\\|:;<>?,\/])( |)| )/g)
+            .filter(e => e && e != " "))
+    let out = []
+    for (let e = 0; e < ins.length; e++) {
+        if (ins[e][ins[e].length - 1] == ":") {
+            ins[e] = [ ins[e].join("") ]
+            out.push(ins[e][0])
+        } else if (ins[e][0][0] == ".") {
+            if (ins[e][0] == ".ascii") {
+                out.push("@st " + prg[e].split(" ").slice(2).join(" "))
+            } else if (ins[e][0] == ".word") {
+                out.push("@nm " + ins[e].slice(1))
+            }
+        }
+    }
+    console.log(out)
+}
+
+let source = `
+act .any
+set .main
+jmp
+
+:any
+    @nm 0x00
+:check
+    @nm 0x00
+:string
+    @st "Hello, World!"
+:pointer
+    @nm 0x00
+:one
+    @nm 0x01
+
+:main
+    act .pointer
+    set .string
+    sub .one
 
 :loop
-    act $pointer
-    add $one
+    act .pointer
+    add .one
     sma
-    mov $check
-    act $any
+    mov .check
+    act .any
     set .end
-    jne $check
-    act $check
+    jne .check
+    act .check
     out
     set .loop
     jmp
@@ -50,31 +123,7 @@ let source = `
     hlt
 `
 
-// Compiles C to ARM
-// Strips all the unecessary things. I have no idea what these mean.
-function compile() {
-    execSync("arm-none-eabi-gcc -Os -S games/game.c -o games/game.s")
-    let data = readFileSync('games/game.s', 'utf8')
-    data = data
-        .split("\n")
-        .filter(e => e.length > 0 && e.trim()[0] != '.' && e.trim()[0] != '@')
-        .map(e => {
-            // This could cause issues if '@' is inside a string.
-            if (e.includes("@")) e = e.split("@")[0]
-            if (e[0] == ' ') return "   " + e
-            return e
-        })
-        .join("\n")
-    // return data.join("\n")
-    writeFileSync("games/game.s", data, "utf-8")
-}
-
-// Converts ARM assembly to Console assembly
-function assembleARM(prg) {
-    let code = []
-}
-
-// Converts the lowest-level Console assembly to bytes
+// Converts Console assembly to bytes
 function assembleConsole(prg) {
     // Tokenize everything and remove unwanted things
     prg = prg.split(/[ \n]+/g).filter(e => e.length != 0)
@@ -87,35 +136,34 @@ function assembleConsole(prg) {
         }
     }
 
+    for (let a = 0; a < prg.length; a++) {
+        if (prg[a][0] == '@') {
+            if (prg[a] == "@nm") {
+                prg[a] = prg.splice(a + 1, 1)[0]
+            } else if (prg[a] == "@st") {
+                prg.splice(a, 1)
+                let str = prg.splice(a, 1)[0].slice(1, -1)
+                // prg.splice(a, 0, "0xFF")
+                for (let s = 0; s < str.length; s++) {
+                    prg.splice(a + s, 0, str.charCodeAt(s) + '')
+                }
+                a += str.length
+                prg.splice(a, 0, '0')
+            }
+        }
+    }
+
     // Parses labels and variables
     let code = [] // Mid-level code
     let labs = {} // Labels
-    let vars = {} // Variables
     for (let a = 0; a < prg.length; a++) {
         if (prg[a][0] == ':') {
             labs[prg[a].slice(1)] = code.length
-        } else if (prg[a][0] == '@') {
-            vars[prg[a].slice(1)] = [prg[++a], -1]
         } else {
             code.push(prg[a])
         }
     }
-    code.push('0') // Pushes "HLT" to the end of the program. UNTESTED!
-
-    // Puts variables at the end of the program.
-    let vidx = code.length // Variable index
-    for (let a in vars) {
-        vars[a][1] = vidx
-        if (vars[a][0][0] == '"') {
-            let s = vars[a][0].slice(1,-1)
-            for (let b = 0; b < s.length; b++) {
-                code[vidx++] = s.charCodeAt(b) + ""
-            }
-            code[vidx++] = "0"
-        } else {
-            code[vidx++] = vars[a][0]
-        }
-    }
+    code.push('0')
 
     // Converts instruction/number strings into numerals
     let instructionMapping = {
@@ -146,10 +194,11 @@ function assembleConsole(prg) {
     return code
 }
 
-// console.log(assemble0(source).map(e => {
+// console.log(assembleConsole(source).map(e => {
 //     let r = e.toString(16).toUpperCase()
 //     if (r.length % 2 == 1) r = "0" + r
 //     return (r.length % 2 == 1 ? "0x0" : "0x") + r
 // }).join(", "))
 
-console.log(compile())
+assembleARM(compile())
+// console.log(assembleConsole(source))
