@@ -44,7 +44,7 @@ function requestListener(req, res) {
     })
     .catch(err => {
         res.writeHead(404)
-        res.end(`You're in the wrong page, ${[
+        res.end(`You're on the wrong page, ${[
             "human being", "buddy", "friend", "mate", "human", "creature", "pal"
         ][Math.floor(Math.random() * 7)]}.`)
         return
@@ -98,6 +98,11 @@ wss.on('connection', function connection(ws) {
                 break
             case "FT":
                 connected[sip][1] = parseInt(cnt[1])
+                if (connected[sip][1] & 1) {
+                    for (let e = 0; e < els.length; e++) {
+                        ws.send(`GK:${sendFullElement(els[e])}`)
+                    }
+                }
                 break
             case "BD":
                 connected[sip][3] |= 1 << cnt[1]
@@ -110,9 +115,6 @@ wss.on('connection', function connection(ws) {
     })
     ws.send("IP:" + last)
     connected[last][2] = ws
-    for (let e = 0; e < els.length; e++) {
-        ws.send(`GK:${sendFullElement(els[e])}`)
-    }
 })
 
 /* GAME LOGIC */
@@ -139,7 +141,7 @@ setInterval(function update(){
     for (let c in connected) {
         if (connected[c][2] === 0) continue
         if (connected[c][1] & 1) { // Check if client has display
-            //connected[c][2].send(`GR:<rect x="224" y="224" fill="red" width="64" height="64"/>`)
+            // connected[c][2].send(`GR:<rect x="224" y="224" fill="red" width="64" height="64"/>`)
             // connected[c][2].send(`GR:`)
             els[0].attributes.x += 0.2
             els[0].dirtyAttributes.x = true
