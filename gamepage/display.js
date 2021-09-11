@@ -2,7 +2,7 @@
 console.log("Loaded display!")
 
 // The display
-let display = document.getElementsByTagName("svg")[0]
+let display = document.getElementById("fullScreen")
 
 // Listen for messages
 socket.addEventListener('message', function (event) {
@@ -11,11 +11,13 @@ socket.addEventListener('message', function (event) {
     let cnt = message.slice(1).join(":") // Content
     switch (typ) {
         case "GK": {
+            console.log("KEYFRAME!")
             let fullTag = cnt.split(',')
             fullTag = "<" + fullTag[0] + " " + fullTag.slice(1).map(e => `${e.split(":")[0]}="${e.split(":")[1]}"`).join(" ") + "/>"
             display.innerHTML += fullTag
         } break
         case "GP": {
+            console.log(cnt)
             // let fullTag = cnt.split(',').map(e => e.split(':'))
             // let tag = display.children[fullTag[0]]
             // for (let a = 1; a < fullTag.length; a++) {
