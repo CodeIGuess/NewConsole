@@ -11,13 +11,12 @@ socket.addEventListener('message', function (event) {
     let cnt = message.slice(1).join(":") // Content
     switch (typ) {
         case "GK": {
-            console.log("KEYFRAME!")
-            let fullTag = cnt.split(',')
-            fullTag = "<" + fullTag[0] + " " + fullTag.slice(1).map(e => `${e.split(":")[0]}="${e.split(":")[1]}"`).join(" ") + "/>"
-            display.innerHTML += fullTag
+            // console.log("KEYFRAME!")
+            cnt = cnt.split(',')
+            
         } break
         case "GP": {
-            console.log(cnt)
+            // console.log(cnt)
             // let fullTag = cnt.split(',').map(e => e.split(':'))
             // let tag = display.children[fullTag[0]]
             // for (let a = 1; a < fullTag.length; a++) {
@@ -29,6 +28,8 @@ socket.addEventListener('message', function (event) {
         } break
     }
 })
+
+socket.send(ip + ":NK:")
 
 // Main loop ~45 fps
 setInterval(function(){
@@ -42,7 +43,7 @@ function spriteCompress(dat, cs) {
     let ret = ""
     for (let a = 0; a < dat.length; a += 2)
         ret += String.fromCharCode(dat[a] << 4 | dat[a + 1])
-    cs.send("SP:", ret)
+    cs.send(ip + ":SP:", ret)
 }
 
 // Sprite decompression
