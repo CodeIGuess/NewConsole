@@ -98,10 +98,11 @@ wss.on('connection', function connection(ws) {
                 break
             case "FT":
                 connected[sip][1] = parseInt(cnt[1])
-                if (connected[sip][1] & 1) {
-                    for (let e = 0; e < els.length; e++) {
-                        ws.send(`GK:${sendFullElement(els[e])}`)
-                    }
+                break
+            case "NK":
+                for (let e = 0; e < els.length; e++) {
+                    console.log(`GK:${sendFullElement(els[e])}`)
+                    connected[sip][2].send(`GK:${e},${sendFullElement(els[e])}`)
                 }
                 break
             case "BD":
@@ -150,7 +151,7 @@ setInterval(function update(){
     }
     // console.log(els[0].dirtyAttributes)
     frameCount++
-}, 22)
+}, 220) // 22
 
 // Sends attributes to client
 function cleanupAttributes(el, c) {
