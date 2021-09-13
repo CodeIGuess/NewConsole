@@ -136,7 +136,7 @@ let els = [{
         y: 224,
         width: 64,
         height: 64,
-        fill: "var(--p1)"
+        fill: "--p2"
     },
     dirtyAttributes: {
         x: false,
