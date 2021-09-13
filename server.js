@@ -10,21 +10,27 @@ const fs = require('fs').promises
 const ws = require('ws')
 let game = require('./cartSelect')
 
+// Last connected user
 let last = "-1"
+// All connected users
 let connected = {}
 
+// URLs that should return nothing
 let urlBlackList = [ "/favicon.ico" ]
 
+// Called when a user connects
 function connect(ip) {
     connected[ip] = [0, 0, 0, 0]
     if (cdLogs) console.log("Connected:", ip)
 }
 
+// Called when a user disconnects
 function disconnect(ip) {
     delete connected[ip]
     if (cdLogs) console.log("Disconnected:", ip)
 }
 
+// Called for every HTTP request
 function requestListener(req, res) {
     if (req.connection.remoteAddress == ip) {} // Code for dev mode
     let url = req.url
@@ -51,12 +57,14 @@ function requestListener(req, res) {
     })
 }
 
+// This server's IP address
 const ip = getIPAddress()
 const server = http.createServer(requestListener)
 server.listen(80, ip, () => {
     console.log(`Server is running on ${ip}:80`)
 })
 
+// Gets this server's IP address
 function getIPAddress() {
     var interfaces = require('os').networkInterfaces()
     for (var devName in interfaces) {
@@ -70,6 +78,7 @@ function getIPAddress() {
     return "0.0.0.0"
 }
 
+// Client timeout disconnect
 setInterval(function(){
     let ret = ""
     for (let k in connected) {
@@ -83,6 +92,7 @@ setInterval(function(){
     console.log(ret)
 }, 1000)
 
+// WebSocket for other communications
 const wss = new ws.WebSocketServer({port: 5077})
 
 wss.on('connection', function connection(ws) {
