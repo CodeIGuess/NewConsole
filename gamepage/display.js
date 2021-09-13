@@ -13,7 +13,14 @@ socket.addEventListener('message', function (event) {
         case "GK": {
             // console.log("KEYFRAME!")
             cnt = cnt.split(',')
-            
+            let id = parseInt(cnt.splice(0, 1))
+            let tag = document.createElement(cnt.splice(0, 1))
+            if (display.children.length <= id) display.appendChild(tag)
+            cnt = cnt.map(e => e.split(":"))
+            console.log(cnt)
+            for (let a = 0; a < cnt.length; a++) {
+                tag.setAttribute(cnt[a][0], cnt[a][1])
+            }
         } break
         case "GP": {
             // console.log(cnt)
