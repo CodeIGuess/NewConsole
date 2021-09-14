@@ -154,14 +154,15 @@ setInterval(function update(){
         if (connected[c][1] & 1) { // Check if client has display
             // connected[c][2].send(`GR:<rect x="224" y="224" fill="red" width="64" height="64"/>`)
             // connected[c][2].send(`GR:`)
-            els[0].attributes.x += 0.2
+            els[0].attributes.x += 10
+            if (els[0].attributes.x > 512 - 64) els[0].attributes.x = 0
             els[0].dirtyAttributes.x = true
         }
         for (let e = 0; e < els.length; e++) cleanupAttributes(e, c)
     }
     // console.log(els[0].dirtyAttributes)
     frameCount++
-}, 220) // 22
+}, 22) // 22
 
 // Sends attributes to client
 function cleanupAttributes(el, c) {
