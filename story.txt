@@ -1,0 +1,11 @@
+
+$health 10
+
+! Choose health stuff.
+:repeat
+~c
+    # Add 1 health
+        ~+ health 1
+    # Remove 1 health
+        ~- health 1
+~g repeat
