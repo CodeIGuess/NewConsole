@@ -10,8 +10,10 @@ class Console {
         this.on = 0    // On instruction number
         this.indWidth = 4
         this.choices = []
+        this.waitingForChoice = false
         this.ready = false
         this.out = ""
+        this.wait = 0
         console.log("Initialized console", id)
     }
 
@@ -44,7 +46,10 @@ class Console {
                         for (let t = this.on + 1; this.st[t].search(/\S/) > ind; t++)
                             if (this.st[t].search(/\S/) == ind + this.indWidth)
                                 this.choices.push([this.st[t].trim().slice(1).trim(), t])
+                        this.waitingForChoice = true
                         break
+                    case 'd':
+                        this.wait = parseFloat(at.split(" ")[1])
                     case '+':
                         this.vars[at.split(" ")[1]] += parseFloat(at.split(" ")[2])
                         break
